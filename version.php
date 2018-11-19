@@ -11,6 +11,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2018110600;
+$plugin->version   = 2018110601;
 $plugin->component = 'local_rlswawebservice';
 $plugin->cron      = 0;

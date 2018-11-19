@@ -9,16 +9,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
-require($CFG->dirroot.'/local/rlswaservice/locallib.php');
+require($CFG->dirroot.'/local/rlswawebservice/locallib.php');
 
 // Parameters.
 $hash      = required_param('hash', PARAM_RAW);
 $timestamp = required_param('timestamp', PARAM_RAW);
 $username  = required_param('username', PARAM_RAW);
-$firstname = optional_param('firstname', '', PARAM_RAW);
-$lastname  = optional_param('lastname', '', PARAM_RAW);
-$email     = optional_param('email', '', PARAM_RAW);
-$courseid  = optional_param('courseid', 0, PARAM_INT);
+$courseid  = optional_param('courseid', '', PARAM_INT);
 
 // Timestamp Validation.
 $lastrun = get_config('local_rlswawebservice', 'lasttimestamp');
@@ -34,9 +31,18 @@ local_rlswawebservice_hash_validation($hash, $timestamp, $username);
 set_config('lasttimestamp', $timestamp, 'local_rlswawebservice');
 
 // Username Validation.
-if ($user = local_rlswawebservice_user_exists($username, $firstname, $lastname, $email)) {
+if ($user = local_rlswawebservice_user_exists($username)) {
     // Log user in.
     complete_user_login($user);
-    // Course id validation.
-    local_rlswawebservice_course($courseid, $user);
+    // Course ID Validation.
+    if ($courseid) {
+        if ($course = $DB->get_record('course', array('id' => $courseid))) {
+            redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
+        } else {
+            echo get_string('error_invalidcourseid', 'local_rlswawebservice');
+            exit;
+        }
+    } else {
+        redirect($CFG->wwwroot);
+    }
 }
